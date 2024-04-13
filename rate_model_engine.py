@@ -28,7 +28,6 @@ swap    = lambda x: 0
 collar  = lambda x: 0
 bond    = lambda x: x
 
-
 # Create payoff functions then multiply them by a triangle array with zero and ones
 # the rates tree is already created/given for pricing 
 
@@ -59,6 +58,7 @@ def cf_cap(rates, strike, delta, notion, cpn):
 
     return cf
 
+
 def cf_bond(rates, strike, delta, notion, cpn):
     
     '''
@@ -82,6 +82,7 @@ def cf_swap(rates, strike, delta, notion, cpn):
             
     return cf
 
+
 # Print helper function 
 def display(arr):
   for i in arr:
@@ -101,6 +102,24 @@ def probTree(length):
     return(prob)
 
 
+def zcb_price(zcb, rates):
+    # calculate zcb price
+    pass
+
+def solver(zcb, rates):
+    # add argument into a solver function
+    pass
+
+# Solve for zero coupon bond prices
+def build(zcb, sigma):
+    
+    tree = np.zeros([len(zcb)+1, len(zcb)+1])
+    # Initialize the theta array
+    
+    # Initial Zero Coupon rate (monthly)
+    tree[0,0] = ((1/zcb[0,0])**(1/(1/12)))-1
+                         
+# Create a tree
 def rateTree(r0, theta, sigma, delta, model):
     # create an interest rate tree based on a defined model for pricing 
     '''
@@ -128,8 +147,7 @@ def rateTree(r0, theta, sigma, delta, model):
     
     return tree
  
-            
-                                                  
+# Solve for pricing using the zero coupon tree                                             
 def priceTree(rates, prob, cf, delta, payoff, notion):
     
     '''
@@ -183,7 +201,6 @@ if __name__ == "__main__":
     largeTree = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Fixed-Income-Valuation/main/Data/testTree.csv", header=0).values
 
     # Testing a cash flow generation
-
     # 1/2 delta is semi annual 
     flr = cf_floor(two_period_tree, 1.00, 1/2, 100, 5.00)
     cp  = cf_cap(two_period_tree, 1.00, 1/2, 100, 5.00)
@@ -194,10 +211,19 @@ if __name__ == "__main__":
     # small ho-lee tree
     ho_lee = rateTree(0.0169, [0.021145, 0.013807], 0.015, 0.5, 'BDT')
     
+    zero_coupons = pd.read_csv('https://raw.githubusercontent.com/wrcarpenter/Interest-Rate-Models/main/Data/zcbs.csv')
+    
+    zcbs = zero_coupons.loc[zero_coupons['Date']=='3/8/2024']
+    zcbs = zcbs.drop("Date", axis=1)
+    
+    zcbs = np.array(zcbs.iloc[:,0:20])
+    
+    theta = build(zcbs, 0.015)
     
     
     
-        
+    
+            
 #%%
     
 # Test cases
@@ -209,19 +235,19 @@ if __name__ == "__main__":
 
 # price = priceTree(one_period_tree, prob, cf, delta, bond, 1)
 
-
 # # Slide 7
 # prob  = probTree(5) 
 # delta = 1/2
 
 # price = priceTree(two_period_tree, prob, delta, cf, bond, 1)
 
-
 # prob  = probTree(len(rateTree))
 # cf = cfTree(rateTree, 0, 1/2, 100, 0.02, bond_cf)
 # delta = 1/2
 
 # price = priceTree(rateTree, prob, cf, delta, bond, 100) 
+
+
 
 
 
