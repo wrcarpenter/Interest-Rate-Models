@@ -11,7 +11,6 @@ todays forward curve and volatilities. Use the tree to price various bonds and
 other fixed income derivatives (caps, floors, swaps, etc.).
 
 """
-
 import sys
 import os
 import math 
@@ -29,6 +28,7 @@ swap    = lambda x: 0
 collar  = lambda x: 0
 bond    = lambda x: x
 
+
 # Create payoff functions then multiply them by a triangle array with zero and ones
 # the rates tree is already created/given for pricing 
 
@@ -38,30 +38,49 @@ def cf_floor(rates, strike, delta, notion, cpn):
     Floor Cash Flows
     '''
     cf  = np.zeros([len(rates), len(rates)])
+
+    for col in range(0, len(cf)-1):
+        for row in range(0, col+1):
+            rate = rates[row,col]
+            cf[row, col] = delta*notion*max(strike/100-rate, 0)
+            
+    return cf 
+
+def cf_cap(rates, strike, delta, notion, cpn):
+    '''
+    Cap Cash Flows
+    '''
+    cf  = np.zeros([len(rates), len(rates)])
+
+    for col in range(0, len(cf)-1):
+        for row in range(0, col+1):
+            rate = rates[row,col]
+            cf[row, col] = delta*notion*max(rate-strike/100, 0)
+
+    return cf
+
+def cf_bond(rates, strike, delta, notion, cpn):
+    
+    '''
+    Bond Cash flows
+    '''
+    cf  = np.zeros([len(rates), len(rates)])
+    # interatively fill up the array
+    for col in range(0, len(cf)-1):
+        for row in range(0, col+1):
+            cf[row, col] = delta*notion*cpn/100  
+    
+    return cf
+
+def cf_swap(rates, strike, delta, notion, cpn):
+    cf  = np.zeros([len(rates), len(rates)])
     # interatively fill up the array
     for col in range(0, len(cf)-1):
         for row in range(0, col+1):
             rate = rates[row,col]
-            cf[row, col] = math.exp(rate*-1*delta)*delta*notion*max(strike/100-rate, 0)
+            cf[row, col] = strike/100 - rate     
             
-    return cf 
-
-
-def cf_cap(rates, strike, delta, notion, cpn):
-    pass
-
-
-def cf_bond(rates, strike, delta, notion, cpn):
-    pass
-    
-
-def cf_swap(rates, strike, delta, notion, cpn):
-    pass    
-
-# floor_cf = lambda rate, strike, delta, notion, cpn : math.exp(-1*rate*delta)*delta*notion*max(strike-rate,0)
-# swap_cf  = lambda rate, strike, delta, notion, cpn : math.exp(-1*rate*delta)*delta*notion*(rate - strike)
-# bond_cf  = lambda rate, strike, delta, notion, cpn : notion*delta*cpn
-# zcb_cf   = lambda rate, strike, delta, notion, cpn : 0 
+    return cf
 
 # Print helper function 
 def display(arr):
@@ -81,24 +100,36 @@ def probTree(length):
     prob[np.triu_indices(length, 0)] = 0.5
     return(prob)
 
-def rateTree():
-    # create an interest rate tree based on a defined model for pricing 
-    pass
 
-def cfTree(rates, strike, delta, notion, cpn, cf_type):
-    
+def rateTree(r0, theta, sigma, delta, model):
+    # create an interest rate tree based on a defined model for pricing 
     '''
-    Cash Flow Tree Function
+    General Rate Model Tree Function
     
-    Returns periodic cash flow given a certain type of asset.
-    
+    Sigma (volatility) can be multi-dimentional for the full BDT model
+    Theta is multi-dimentional
     '''
+
+    # generate an interest rate tree of size N+1 because the last period is payoff
+
+    tree = np.zeros([len(theta)+2, len(theta)+2])
+    # initialize tree
+    tree[0,0] = r0
+       
+    # fill in first row 
+    for col in range(1, len(tree)-1):
+        
+        tree[0, col] = tree[0, col-1] + theta[col-1]*delta+sigma*math.sqrt(delta)
+   
     
-    cf = np.zeros([len(rates), len(rates)])
-    cf[np.triu_indices(len(cf),0)] = cf_type(rates, strike, delta, notion, cpn)
+    for col in range(1, len(tree)-1):
+        for row in range(1, col+1):
+            tree[row, col] = tree[row-1, col] - 2*sigma*math.sqrt(delta)
     
-    return cf             
-                                       
+    return tree
+ 
+            
+                                                  
 def priceTree(rates, prob, cf, delta, payoff, notion):
     
     '''
@@ -149,40 +180,48 @@ if __name__ == "__main__":
                                 [np.nan, np.nan, 0.0083, np.nan], 
                                 [np.nan, np.nan, np.nan, np.nan]])
 
-    rateTree = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Fixed-Income-Valuation/main/Data/testTree.csv", header=0).values
+    largeTree = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Fixed-Income-Valuation/main/Data/testTree.csv", header=0).values
 
     # Testing a cash flow generation
+
+    # 1/2 delta is semi annual 
+    flr = cf_floor(two_period_tree, 1.00, 1/2, 100, 5.00)
+    cp  = cf_cap(two_period_tree, 1.00, 1/2, 100, 5.00)
+    bd  = cf_bond(two_period_tree, 1.00, 1/2, 100, 5.00)
     
-    # Bond?
-    print(one_period_tree.shape)
+    theta = [0.021145, 0.013807]
+    
+    # small ho-lee tree
+    ho_lee = rateTree(0.0169, [0.021145, 0.013807], 0.015, 0.5, 'BDT')
     
     
-    res = cf_floor(two_period_tree, 1.00, 1/2, 100, 5.00)
+    
+    
         
 #%%
     
-    # Test cases
-    # Slide 5 
-    # prob  = probTree(4)
-    # pu    = prob[1,1]
-    # cf    = cfTree(one_period_tree, 5.00, delta, 1, ) 
-    # delta = 1/2
-    
-    # price = priceTree(one_period_tree, prob, cf, delta, bond, 1)
+# Test cases
+# Slide 5 
+# prob  = probTree(4)
+# pu    = prob[1,1]
+# cf    = cfTree(one_period_tree, 5.00, delta, 1, ) 
+# delta = 1/2
+
+# price = priceTree(one_period_tree, prob, cf, delta, bond, 1)
 
 
-    # # Slide 7
-    # prob  = probTree(5) 
-    # delta = 1/2
-    
-    # price = priceTree(two_period_tree, prob, delta, cf, bond, 1)
+# # Slide 7
+# prob  = probTree(5) 
+# delta = 1/2
 
-    
-    # prob  = probTree(len(rateTree))
-    # cf = cfTree(rateTree, 0, 1/2, 100, 0.02, bond_cf)
-    # delta = 1/2
-    
-    # price = priceTree(rateTree, prob, cf, delta, bond, 100) 
+# price = priceTree(two_period_tree, prob, delta, cf, bond, 1)
+
+
+# prob  = probTree(len(rateTree))
+# cf = cfTree(rateTree, 0, 1/2, 100, 0.02, bond_cf)
+# delta = 1/2
+
+# price = priceTree(rateTree, prob, cf, delta, bond, 100) 
 
 
 
