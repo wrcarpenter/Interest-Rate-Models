@@ -17,6 +17,8 @@ import math
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import newton
+
 
 # Asset Payoff Lamda Functions 
 call    = lambda x: max(x-100, 0)
@@ -99,10 +101,12 @@ def probTree(length):
     prob[np.triu_indices(length, 0)] = 0.5
     return(prob)
 
-
 def solver(theta, tree, zcb, i, sigma, delta):    
+        
+    # Create pricing matrix for ZCBs
+    price = np.zeros([i+1, i+1])
     
-    # now we need to use all the variables and create a "final ZCB price"
+    # Assign new rates
     for row in range(0, len(tree)):
         if row == 0: 
             tree[row, i] = tree[row, i-1] + theta*delta + sigma*math.sqrt(delta)
@@ -110,25 +114,22 @@ def solver(theta, tree, zcb, i, sigma, delta):
             tree[row, i] = tree[row-1, i-1] + theta*delta - sigma*math.sqrt(delta)
             
             
-    # now discount backwards to determine the price of the ZCB 
-    # PRICE BACKWARDS!!!!!
-    # return the price of the ZCB
-    
-    # need pricing tree?
-    
-    for col in reversed(range(0, i+1)):
-        # iterate backwards
-        
-    
-    
-    
-    
-    
-    return treePrice - zcb    
-    
+    # fill in the pricing tree
+    for row in range(0, len(price)):
+        # rate
+        price[row, i] = 1/((1+tree[row, i])**(i/12))
 
-
-def calibrate(tree, zcb, i, sigma, delta)
+    # need pricing tree?    
+    for col in reversed(range(0, i)):
+       
+        for row in range(0, col+1):
+            
+            node = 1/((1+tree[col, row])**(col/12)) # get that discount factor 
+            price[row, col] = node*(1/2*price[row, col+1] + 1/2*price[row+1, col+1])
+           
+    return price[0,0] - zcb    
+    
+def calibrate(tree, zcb, i, sigma, delta):
 
     '''
     Calibrated a rate tree - solving for sigma to match ZCB prices. 
@@ -141,17 +142,22 @@ def calibrate(tree, zcb, i, sigma, delta)
     # this should be a loop that assembles all theta and returns
     theta = newton(solver, t0, args=(tree, zcb, i, sigma, delta))
     
+    return theta
     
+        
 def build(zcb, sigma, delta):
     
-    tree  = np.zeros([len(zcb)+1, len(zcb)+1])
-    theta = np.zeros([len(zcb), len(zcb)]) 
+    tree  = np.zeros([zcb.shape[1]+1, zcb.shape[1]+1])
+    theta = np.zeros([zcb.shape[1]]) 
+    
     
     # Initial Zero Coupon rate (monthly)
     tree[0,0] = ((1/zcb[0,0])**(1/(delta)))-1
     
     for i in range(1, len(theta)):
+        
         theta[i] = calibrate(tree, zcb[0,i], i, sigma, delta)
+        # this is working
     
     return theta
     
@@ -252,11 +258,7 @@ if __name__ == "__main__":
     
     # Calibrating the tree
     theta = build(zcbs, 0.015, 1/12)
-    
-    
-    
-    
-            
+                    
 #%%
 
 i = 1
