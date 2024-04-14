@@ -153,6 +153,7 @@ def build(zcb, sigma, delta):
     
     # Initial Zero Coupon rate (monthly)
     tree[0,0] = ((1/zcb[0,0])**(1/(delta)))-1
+    print(tree[0,0])
     
     for i in range(1, len(theta)):
         
@@ -170,14 +171,14 @@ def rateTree(r0, theta, sigma, delta, model):
     Theta is multi-dimentional
     '''
 
-    tree = np.zeros([len(theta)+2, len(theta)+2])
+    tree = np.zeros([len(theta)+1, len(theta)+1])
     # initialize tree
     tree[0,0] = r0
        
     # fill in first row 
     for col in range(1, len(tree)-1):
         
-        tree[0, col] = tree[0, col-1] + theta[col-1]*delta+sigma*math.sqrt(delta)
+        tree[0, col] = tree[0, col-1] + theta[col]*delta+sigma*math.sqrt(delta)
    
     
     for col in range(1, len(tree)-1):
@@ -258,12 +259,11 @@ if __name__ == "__main__":
     
     # Calibrating the tree
     theta = build(zcbs, 0.015, 1/12)
+    
+    holee = rateTree(0.059, theta, 0.015, 1/12, 'HL')
+    
                     
 #%%
-
-i = 1
-for col in reversed(range(0, i+1)):
-    print(col)
     
 # Test cases
 # Slide 5 
