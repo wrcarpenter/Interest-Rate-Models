@@ -158,7 +158,6 @@ def build(zcb, sigma, delta):
     for i in range(1, len(theta)):
         
         theta[i] = calibrate(tree, zcb[0,i], i, sigma, delta)
-        # this is working
     
     return theta
     
@@ -216,7 +215,7 @@ def priceTree(rates, prob, cf, delta, payoff, notion):
             rate = rates[row,col]
             # cf_d = cashflow(rate, )
             # cf_u = cashflow(rate, strike, delta, notional, cpn)
-            pu = pd = prob[row, col] # always equal to 1/2 from prob tree
+            pu = pd = 1/2 # always equal to 1/2 from prob tree
             
             tree[row, col] = np.exp(-1*rate*delta)* \
                              (pu*(tree[row, col+1]+cf[row,col+1]) + pd*(tree[row+1, col+1]+cf[row+1, col+1]))      
@@ -226,29 +225,10 @@ def priceTree(rates, prob, cf, delta, payoff, notion):
 
 # Unit testing        
 if __name__ == "__main__":
-    
-    # Reading in interest rate tree data for testing 
-    one_period_tree = np.array([[0.0168, 0.0433, np.nan], 
-                                [np.nan, 0.0120, np.nan], 
-                                [np.nan, np.nan, np.nan]]) 
-
-    two_period_tree = np.array([[0.0168, 0.0433, 0.0638, np.nan], 
-                                [np.nan, 0.0120, 0.0361, np.nan], 
-                                [np.nan, np.nan, 0.0083, np.nan], 
-                                [np.nan, np.nan, np.nan, np.nan]])
-
-    largeTree = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Fixed-Income-Valuation/main/Data/testTree.csv", header=0).values
-
-    # Testing a cash flow generation
-    # 1/2 delta is semi annual 
-    flr = cf_floor(two_period_tree, 1.00, 1/2, 100, 5.00)
-    cp  = cf_cap(two_period_tree, 1.00, 1/2, 100, 5.00)
-    bd  = cf_bond(two_period_tree, 1.00, 1/2, 100, 5.00)
-    
-    theta = [0.021145, 0.013807]
-    
+        
+    # theta = [0.021145, 0.013807] 
     # small ho-lee tree
-    ho_lee = rateTree(0.0169, [0.021145, 0.013807], 0.015, 0.5, 'BDT')
+    # ho_lee = rateTree(0.0169, [0.021145, 0.013807], 0.015, 0.5, 'BDT')
     
     zero_coupons = pd.read_csv('https://raw.githubusercontent.com/wrcarpenter/Interest-Rate-Models/main/Data/zcbs.csv')
     
@@ -260,31 +240,17 @@ if __name__ == "__main__":
     # Calibrating the tree
     theta = build(zcbs, 0.015, 1/12)
     
-    holee = rateTree(0.059, theta, 0.015, 1/12, 'HL')
+    holee = rateTree(0.059, theta, 0.0015, 1/12, 'HL')
+    
+    
+    zcbcf = cf_bond(holee, 5.00, 1/12, 1, 0.00) # zero coupon bond
+    
+    px    = priceTree(holee, 1/2, zcbcf, 1/12, bond, 1)
+    
+    
     
                     
-#%%
-    
-# Test cases
-# Slide 5 
-# prob  = probTree(4)
-# pu    = prob[1,1]
-# cf    = cfTree(one_period_tree, 5.00, delta, 1, ) 
-# delta = 1/2
 
-# price = priceTree(one_period_tree, prob, cf, delta, bond, 1)
-
-# # Slide 7
-# prob  = probTree(5) 
-# delta = 1/2
-
-# price = priceTree(two_period_tree, prob, delta, cf, bond, 1)
-
-# prob  = probTree(len(rateTree))
-# cf = cfTree(rateTree, 0, 1/2, 100, 0.02, bond_cf)
-# delta = 1/2
-
-# price = priceTree(rateTree, prob, cf, delta, bond, 100) 
 
 
 
