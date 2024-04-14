@@ -102,22 +102,46 @@ def probTree(length):
     return(prob)
 
 
-def zcb_price(zcb, rates):
-    # calculate zcb price
-    pass
 
-def solver(zcb, rates):
-    # add argument into a solver function
-    pass
-
-# Solve for zero coupon bond prices
-def build(zcb, sigma):
+def solver(theta, zcb, tree):
     
-    tree = np.zeros([len(zcb)+1, len(zcb)+1])
+    # calculate zcb price
+    # this is where you need to add pricing code
+    # this is where you use theta to create the rest of the tree and start to price backwards with the given rates
+    
+    # 
+    
+
+def calibrate(tree, zcb, i, sigma, delta)
+
+    '''
+    Calibrated a rate tree - solving for sigma to match ZCB prices. 
+    '''
+    
+    # add argument into a solver function
+    t0    = 0.10
+    miter = 1000
+    
+    # this should be a loop that assembles all theta and returns
+    theta = newton(solver, t0, args=(zcb, tree, sigma, delta))
+    
+    
+
+
+# Solve for theta
+def build(zcb, sigma, delta):
+    
+    tree  = np.zeros([len(zcb)+1, len(zcb)+1])
+    theta = np.zeros([len(zcb), len(zcb)]) 
     # Initialize the theta array
     
     # Initial Zero Coupon rate (monthly)
-    tree[0,0] = ((1/zcb[0,0])**(1/(1/12)))-1
+    tree[0,0] = ((1/zcb[0,0])**(1/(delta)))-1
+    
+    for i in range(1, len(theta)):
+        theta[i] = calibrate(tree, zcb[0,i], i, sigma, delta)
+    
+    # Now we need to solve for the rest of the thetas via iteration
                          
 # Create a tree
 def rateTree(r0, theta, sigma, delta, model):
@@ -218,7 +242,7 @@ if __name__ == "__main__":
     
     zcbs = np.array(zcbs.iloc[:,0:20])
     
-    theta = build(zcbs, 0.015)
+    theta = build(zcbs, 0.015, 1/12)
     
     
     
