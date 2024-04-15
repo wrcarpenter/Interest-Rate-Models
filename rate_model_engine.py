@@ -117,7 +117,7 @@ def solver(theta, tree, zcb, i, sigma, delta):
     # fill in the pricing tree
     for row in range(0, len(price)):
         # rate
-        price[row, i] = 1/((1+tree[row, i])**(i/12))
+        price[row, i] = 1/((1+tree[row, i])**((i+1)/12))
 
     # need pricing tree?    
     for col in reversed(range(0, i)):
@@ -136,30 +136,49 @@ def calibrate(tree, zcb, i, sigma, delta):
     '''
     
     # add argument into a solver function
-    t0    = 0.10
-    miter = 1000
+    t0    = -0.20
+    miter = 10000
     
     # this should be a loop that assembles all theta and returns
     theta = newton(solver, t0, args=(tree, zcb, i, sigma, delta))
     
-    return theta
+    # update rate tree with theta here
+    for row in range(0, i+1):
+        if row == 0: 
+            tree[row, i] = tree[row, i-1] + theta*delta + sigma*math.sqrt(delta)
+        else:
+            tree[row, i] = tree[row-1, i-1] + theta*delta - sigma*math.sqrt(delta)
+    
+    
+    return [theta, tree]
     
         
 def build(zcb, sigma, delta):
     
+    # empty rates tree
     tree  = np.zeros([zcb.shape[1]+1, zcb.shape[1]+1])
+    # empty theta tree
     theta = np.zeros([zcb.shape[1]]) 
-    
     
     # Initial Zero Coupon rate (monthly)
     tree[0,0] = ((1/zcb[0,0])**(1/(delta)))-1
-    print(tree[0,0])
+    r0        = tree[0,0]
     
     for i in range(1, len(theta)):
         
-        theta[i] = calibrate(tree, zcb[0,i], i, sigma, delta)
-    
-    return theta
+        # here you need to solve for theta and also get an updated tree        
+        solved   = calibrate(tree, zcb[0,i], i, sigma, delta)
+        
+        # update theta array ... it does not need previous theta but it needs updated rates
+        theta[i] = solved[0]
+        tree     = solved[1]
+        
+        
+            
+    # you have effectivley calibrated and already created the tree
+    # return [r0, rateTree, theta]
+    display(tree)
+    return [r0, tree, theta]
     
 def rateTree(r0, theta, sigma, delta, model):
 
@@ -223,6 +242,7 @@ def priceTree(rates, prob, cf, delta, payoff, notion):
     return tree[0,0]  
 
 
+
 # Unit testing        
 if __name__ == "__main__":
         
@@ -235,17 +255,31 @@ if __name__ == "__main__":
     zcbs = zero_coupons.loc[zero_coupons['Date']=='3/8/2024']
     zcbs = zcbs.drop("Date", axis=1)
     
-    zcbs = np.array(zcbs.iloc[:,0:20])
+    # zcbs = np.array(zcbs.iloc[:,0:4])  # these are my zero coupon bonds
     
+    zeros = np.array(zcbs.iloc[:,0:4])
+    x     = build(zeros, 0.009, 1/12)
+    tr    = rateTree(x[0], x[2], 0.009, 1/12, 'HL')
+    c     = cf_bond(tr, 5.00, 1/12, 1, 0.00)
+    p     = priceTree(tr, 1/2, c, 1/12, bond, 1)
+    
+    
+    
+    
+     
     # Calibrating the tree
-    theta = build(zcbs, 0.015, 1/12)
+    result = build(zcbs, 0.009, 1/12)
     
-    holee = rateTree(0.059, theta, 0.0015, 1/12, 'HL')
-    
+    holee = rateTree(result[0], result[2], 0.009, 1/12, 'HL')
     
     zcbcf = cf_bond(holee, 5.00, 1/12, 1, 0.00) # zero coupon bond
+    x    = priceTree(holee, 1/2, zcbcf, 1/12, bond, 1)
     
-    px    = priceTree(holee, 1/2, zcbcf, 1/12, bond, 1)
+    
+    # rate tree builder function works correctly  
+    # test  = rateTree(0.045, [0.02, 0.02, 0.02, 0.02, 0.02], 0.001, 1/12, "HL")
+    # zcbcf = cf_bond(holee, 5.00, 1/12, 1, 0.00) # zero coupon bond
+    # px    = priceTree(holee, 1/2, zcbcf, 1/12, bond, 1)
     
     
     
