@@ -19,7 +19,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import newton
 
-
 # Asset Payoff Lamda Functions 
 call    = lambda x: max(x-100, 0)
 put     = lambda x: max(100-x, 0)
@@ -104,29 +103,23 @@ def probTree(length):
 def solver(theta, tree, zcb, i, sigma, delta):    
         
     # Create pricing matrix for ZCBs
-    price = np.zeros([i+1, i+1])
+    price = np.zeros([i+2, i+2])
     
-    # Assign new rates
-    for row in range(0, len(tree)):
+    # assign the last row to be payoff of ZCB
+    price[:,len(price)-1] = 1
+    
+    # Assign new rates to tree 
+    for row in range(0, i+1):
         if row == 0: 
             tree[row, i] = tree[row, i-1] + theta*delta + sigma*math.sqrt(delta)
         else:
             tree[row, i] = tree[row-1, i-1] + theta*delta - sigma*math.sqrt(delta)
             
-            
-    # fill in the pricing tree
-    for row in range(0, len(price)):
-        # rate
-        price[row, i] = 1/((1+tree[row, i])**((i+1)/12))
-
     # need pricing tree?    
-    for col in reversed(range(0, i)):
-       
+    for col in reversed(range(0, i+1)):
         for row in range(0, col+1):
-            
-            node = 1/((1+tree[col, row])**(col/12)) # get that discount factor 
-            price[row, col] = node*(1/2*price[row, col+1] + 1/2*price[row+1, col+1])
-           
+            node = np.exp(-1*tree[row, col]*((col+1)/12))
+            price[row, col] = node*(1/2*price[row, col+1] + 1/2*price[row+1, col+1])     
     return price[0,0] - zcb    
     
 def calibrate(tree, zcb, i, sigma, delta):
@@ -136,8 +129,8 @@ def calibrate(tree, zcb, i, sigma, delta):
     '''
     
     # add argument into a solver function
-    t0    = -0.20
-    miter = 10000
+    t0    = 0.5
+    miter = 1000
     
     # this should be a loop that assembles all theta and returns
     theta = newton(solver, t0, args=(tree, zcb, i, sigma, delta))
@@ -161,12 +154,19 @@ def build(zcb, sigma, delta):
     theta = np.zeros([zcb.shape[1]]) 
     
     # Initial Zero Coupon rate (monthly)
-    tree[0,0] = ((1/zcb[0,0])**(1/(delta)))-1
+    tree[0,0] = np.log(zcb[0,0])*-1/delta
+    
+    # tree[0,0] = ((1/zcb[0,0])**(1/(delta)))-1
+    # add to rate tree
+    
     r0        = tree[0,0]
     
     for i in range(1, len(theta)):
         
         # here you need to solve for theta and also get an updated tree        
+        # now it passes 
+        # tree, i=1, sigma, delta
+        
         solved   = calibrate(tree, zcb[0,i], i, sigma, delta)
         
         # update theta array ... it does not need previous theta but it needs updated rates
@@ -239,9 +239,9 @@ def priceTree(rates, prob, cf, delta, payoff, notion):
             tree[row, col] = np.exp(-1*rate*delta)* \
                              (pu*(tree[row, col+1]+cf[row,col+1]) + pd*(tree[row+1, col+1]+cf[row+1, col+1]))      
 
-    return tree[0,0]  
-
-
+    
+    return tree
+    # return tree[0,0]  
 
 # Unit testing        
 if __name__ == "__main__":
@@ -257,31 +257,33 @@ if __name__ == "__main__":
     
     # zcbs = np.array(zcbs.iloc[:,0:4])  # these are my zero coupon bonds
     
+    tre = rateTree(0.045, [0.02, 0.02, 0.02, 0.02, 0.02, 0.02], 0.001,1/12, "HL")
+    c   = cf_bond(tre, 5.00, 1/12, 1, 0.00)
+    p   = priceTree(tre, 1/2, c, 1/12, bond, 1)
+    
+    
     zeros = np.array(zcbs.iloc[:,0:4])
     x     = build(zeros, 0.009, 1/12)
     tr    = rateTree(x[0], x[2], 0.009, 1/12, 'HL')
     c     = cf_bond(tr, 5.00, 1/12, 1, 0.00)
     p     = priceTree(tr, 1/2, c, 1/12, bond, 1)
     
-    
-    
-    
-     
+ 
     # Calibrating the tree
-    result = build(zcbs, 0.009, 1/12)
+    # result = build(zcbs, 0.009, 1/12)
     
-    holee = rateTree(result[0], result[2], 0.009, 1/12, 'HL')
+    # holee = rateTree(result[0], result[2], 0.009, 1/12, 'HL')
     
-    zcbcf = cf_bond(holee, 5.00, 1/12, 1, 0.00) # zero coupon bond
-    x    = priceTree(holee, 1/2, zcbcf, 1/12, bond, 1)
+    # zcbcf = cf_bond(holee, 5.00, 1/12, 1, 0.00) # zero coupon bond
+    # x    = priceTree(holee, 1/2, zcbcf, 1/12, bond, 1)
     
     
     # rate tree builder function works correctly  
     # test  = rateTree(0.045, [0.02, 0.02, 0.02, 0.02, 0.02], 0.001, 1/12, "HL")
     # zcbcf = cf_bond(holee, 5.00, 1/12, 1, 0.00) # zero coupon bond
     # px    = priceTree(holee, 1/2, zcbcf, 1/12, bond, 1)
-    
-    
+
+   
     
                     
 
