@@ -29,7 +29,6 @@ swap    = lambda x: 0
 collar  = lambda x: 0
 bond    = lambda x: x
 
-
 def cf_floor(rates, strike, delta, notion, cpn):
     
     '''
@@ -129,14 +128,11 @@ def calibrate(tree, zcb, i, sigma, delta):
     Calibrated a rate tree - solving for sigma to match ZCB prices. 
     '''
     
-    # add argument into a solver function
     t0    = 0.5
     miter = 1000
-    
-    # this should be a loop that assembles all theta and returns
+
     theta = newton(solver, t0, args=(tree, zcb, i, sigma, delta))
-    
-    # update rate tree with theta here
+
     for row in range(0, i+1):
         if row == 0: 
             tree[row, i] = tree[row, i-1] + theta*delta + sigma*math.sqrt(delta)
@@ -154,31 +150,19 @@ def build(zcb, sigma, delta):
     # empty theta tree
     theta = np.zeros([zcb.shape[1]]) 
     
-    # Initial Zero Coupon rate (monthly)
+    # Initial Zero Coupon rate
     tree[0,0] = np.log(zcb[0,0])*-1/delta
-    
-    # tree[0,0] = ((1/zcb[0,0])**(1/(delta)))-1
-    # add to rate tree
     
     r0        = tree[0,0]
     
     for i in range(1, len(theta)):
         
-        # here you need to solve for theta and also get an updated tree        
-        # now it passes 
-        # tree, i=1, sigma, delta
-        
         solved   = calibrate(tree, zcb[0,i], i, sigma, delta)
         
-        # update theta array ... it does not need previous theta but it needs updated rates
+        # update theta array
         theta[i] = solved[0]
         tree     = solved[1]
         
-        
-            
-    # you have effectivley calibrated and already created the tree
-    # return [r0, rateTree, theta]
-    display(tree)
     return [r0, tree, theta]
     
 def rateTree(r0, theta, sigma, delta, model):
@@ -191,10 +175,8 @@ def rateTree(r0, theta, sigma, delta, model):
     '''
 
     tree = np.zeros([len(theta)+1, len(theta)+1])
-    # initialize tree
     tree[0,0] = r0
        
-    # fill in first row 
     for col in range(1, len(tree)-1):
         
         tree[0, col] = tree[0, col-1] + theta[col]*delta+sigma*math.sqrt(delta)
@@ -238,8 +220,7 @@ def priceTree(rates, prob, cf, delta, payoff, notion):
                              (pu*(tree[row, col+1]+cf[row,col+1]) + pd*(tree[row+1, col+1]+cf[row+1, col+1]))      
 
     
-    return tree
-    # return tree[0,0]  
+    return (tree[0,0], tree) 
 
 # Unit testing        
 if __name__ == "__main__":

@@ -21,7 +21,10 @@ spot_rates.to_clipboard()
 
 for row in range(0, zcbs.shape[0]):
     for col in range(1, zcbs.shape[1]):
-        zcbs.iloc[row, col] = 1/((1+spot_rates.iloc[row, col]/100)**(col/12))
-
-
-zcbs.to_csv('C:/Users/wcarp/OneDrive/Desktop/Interest Rate Model/Data/zcbs.csv', index=False)  
+        
+        # continuous compounding
+        zcbs.iloc[row, col] = np.exp(-1*spot_rates.iloc[row, col]/100*col/12)
+        
+# Saving down 
+zcbs.to_csv('C:/Users/wcarp/OneDrive/Desktop/Interest Rate Model/Data/zcbs.csv', index=False)
+  

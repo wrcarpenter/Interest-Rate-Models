@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Testing
+Interest Rate Model
 """
 import sys
 import os
@@ -12,16 +12,29 @@ from scipy.optimize import newton
 # Custom module
 import rate_model_engine as model
 
+#%%
+# Read in zero coupon data 
 zero_coupons = pd.read_csv('https://raw.githubusercontent.com/wrcarpenter/Interest-Rate-Models/main/Data/zcbs.csv')
-
 zcbs = zero_coupons.loc[zero_coupons['Date']=='3/8/2024']
 zcbs = zcbs.drop("Date", axis=1)
-# small example for calibration
-zeros  = np.array(zcbs.iloc[:,0:60])
-cal    = model.build(zeros, 0.009, 1/12)
-tree   = model.rateTree(x[0], x[2], 0.01, 1/12, 'HL')
+
+
+#%%
+zeros  = np.array(zcbs.iloc[:,0:48])
+cal    = model.build(zeros, 0.012, 1/12)
+tree   = model.rateTree(x[0], x[2], 0.012, 1/12, 'HL')
 cf     = model.cf_bond(tr, 5.00, 1/12, 1, 0.00)
-px     = model.priceTree(tr, 1/2, cf, 1/12, bond, 1) 
+out    = model.priceTree(tr, 1/2, cf, 1/12, bond, 1)
+px     = out[0]
+ptree  = out[1] 
+
+
+#%%
+def tree_monte_carlo(tree, paths):
+    
+    # return a dataframe
+    
+
 
 #%%
 
