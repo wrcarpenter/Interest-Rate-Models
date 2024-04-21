@@ -58,7 +58,7 @@ def tree_monte_carlo(tree, paths):
     
     return monte
 
-# Charting        
+# Charting example       
 def chart_monte_carlo(monte, spots, w, l, title):
     
     x1 = np.array(monte['Period'])
@@ -81,8 +81,7 @@ def chart_monte_carlo(monte, spots, w, l, title):
     
     plt.plot(x1, s1, color="blue", label="Spot Rates")
     plt.legend(loc='upper right', fontsize='large')
-    
-        
+            
 if __name__ == "__main__":
 
     # Read in zero coupon data 

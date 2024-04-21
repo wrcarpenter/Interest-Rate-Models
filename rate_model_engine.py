@@ -19,14 +19,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import newton
 
-# Asset Payoff Lamda Functions 
-cap     = lambda x: 0 
-floor   = lambda x: 0
-swap    = lambda x: 0
-collar  = lambda x: 0
-bond    = lambda x: x
-
-
 def payoff(x, typ):
     if typ == "bond":
         return x
