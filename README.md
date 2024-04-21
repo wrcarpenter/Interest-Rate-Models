@@ -1,5 +1,9 @@
 # Interest Rate Models
-This project implements binomial trees to model interest rates, which can be calibrated to market data and used to price a variety of fixed income securities. 
+Fixed income bonds and derivatives are complicated financial instruments whose pricing is often conditional on the path of interest rates in the future. The assumption that current rates will remain 'static' is overly simplistic, especially when one needs to price a security with embedded options (ex: swaption). 
+
+This repository focuses on the implementation of two interest rate models in a binomial lattic framework, somewhat similar to valuation methods in the equity derivative market beyond Black-Scholes. The two models are: Ho-Lee and Black-Derman-Toy. The fixed income industry has become more complex since these were intially created but they have both been used in practice at some point to develop pricing models for banks and other market participants. 
+
+## Table of Contents
 
 ## Objectives
 * Use market data to calibrate a binomail interest tree model (Ho-Lee or Black-Derman-Toy)
@@ -12,10 +16,10 @@ The tree should be calibrated to price zero coupon bond prices given the market.
 
 Construct tree interatively solving to calibrate a full rate tree. 
 
-## Binomial Tree Pricing
+## Binomial Tree Pricing Method
 Price bonds.
 
-## Monte Carlo Pricing
+## Monte Carlo Pricing Method
 Generate a monte carlo simulation. 
 
 
