@@ -3,10 +3,6 @@
 Monte Carlo - Rate Models
 
 """
-
-# monte carlo 
-# take a rate model and simulate through various paths
-
 import sys
 import os
 import math 
@@ -18,25 +14,7 @@ from scipy.optimize import newton
 # Custom module
 import rate_model_engine as model
 
-#%%
-# Read in zero coupon data 
-zero_coupons = pd.read_csv('https://raw.githubusercontent.com/wrcarpenter/Interest-Rate-Models/main/Data/zcbs.csv')
-zcbs = zero_coupons.loc[zero_coupons['Date']=='3/8/2024']
-zcbs = zcbs.drop("Date", axis=1)
-
-#%%
-zeros  = np.array(zcbs.iloc[:,0:48])
-cal    = model.build(zeros, 0.012, 1/12)
-tree   = model.rateTree(cal[0], cal[2], 0.012, 1/12, 'HL')
-cf     = model.cf_bond(tree, 5.00, 1/12, 1, 0.00)
-out    = model.priceTree(tree, 1/2, cf, 1/12, bond, 1)
-px     = out[0]
-ptree  = out[1]
-
-#%%
-
- 
-
+# Monte carlo simluation 
 def tree_monte_carlo(tree, paths):    
     # return a dataframe
     # same rows as the rate tree, columns is the number of simulations
@@ -80,11 +58,53 @@ def tree_monte_carlo(tree, paths):
     
     return monte
 
-arr = tree_monte_carlo(tree, 15)    
-
-
+# Charting        
+def chart_monte_carlo(monte, spots, w, l, title):
     
-def chart_monte_carlo(monte):
-    pass
-    # chart graph with monte carlo simulations of interest rate tree
+    x1 = np.array(monte['Period'])
+    s1 = np.array(spots[0,:]/100)
+    fig,ax = plt.subplots(figsize=(w,l))
+    ax.set_xticks(np.arange(1, len(monte)+10, 20))
+    ax.set_yticks(np.arange(round(np.min(monte.iloc[:,1:].values)-0.50,2), round(np.max(monte.iloc[:,1:].values)+.50,2), 0.02))
+    ax.set_title(title, fontsize="large")
+    
+    
+    ax.set_ylabel('Interest Rate (%)', fontsize="large")
+    ax.set_xlabel('Months', fontsize="large")
+    
+    for col in range(1, monte.shape[1]):
+        
+        y = np.array(monte.iloc[:, col])
+        if col==1:
+            plt.plot(x1, y, color="grey", label="Simulations")
+        plt.plot(x1, y, color="grey")    
+    
+    plt.plot(x1, s1, color="blue", label="Spot Rates")
+    plt.legend(loc='upper right', fontsize='large')
+    
+        
+if __name__ == "__main__":
+
+    # Read in zero coupon data 
+    zero_coupons = pd.read_csv('https://raw.githubusercontent.com/wrcarpenter/Interest-Rate-Models/main/Data/zcbs.csv')
+    spot_rates   = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Interest-Rate-Models/main/Data/spots-monthly.csv", header=0)
+    zcbs  = zero_coupons.loc[zero_coupons['Date']=='3/8/2024']
+    spots = spot_rates.loc[spot_rates['Date']=='3/8/2024']
+    zcbs = zcbs.drop("Date", axis=1)
+    spots = spots.drop("Date", axis=1)
+    
+    zeros  = np.array(zcbs.iloc[:,0:120])
+    spots  = np.array(spots.iloc[:,0:120])
+    cal    = model.build(zeros, 0.012, 1/12)
+    tree   = model.rateTree(cal[0], cal[2], 0.012, 1/12, 'HL')
+    cf     = model.cf_bond(tree, 5.00, 1/12, 1, 4.00)
+    out    = model.priceTree(tree, 1/2, cf, 1/12, bond, 1)
+    px     = out[0]
+    ptree  = out[1]
+
+
+    monte  = tree_monte_carlo(tree, 250)
+    chart_monte_carlo(monte, spots, 11, 5.5, "Ho-Lee Binomial Tree Monte Carlo: 250 Simulations")                 
+        
+
      
