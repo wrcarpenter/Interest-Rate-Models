@@ -97,14 +97,14 @@ if __name__ == "__main__":
     spots  = np.array(spots.iloc[:,0:120])
     cal    = model.build(zeros, 0.012, 1/12)
     tree   = model.rateTree(cal[0], cal[2], 0.012, 1/12, 'HL')
-    cf     = model.cf_bond(tree, 5.00, 1/12, 1, 4.00)
-    out    = model.priceTree(tree, 1/2, cf, 1/12, bond, 1)
+    cf     = model.cf_bond(tree, 5.00, 1/12, 1, 0.00)
+    out    = model.priceTree(tree, 1/2, cf, 1/12, "bond", 1)
     px     = out[0]
     ptree  = out[1]
 
-
     monte  = tree_monte_carlo(tree, 250)
-    chart_monte_carlo(monte, spots, 11, 5.5, "Ho-Lee Binomial Tree Monte Carlo: 250 Simulations")                 
+    chart_monte_carlo(monte, spots, 8,3.5, "Ho-Lee Binomial Tree Monte Carlo: 250 Simulations")
+    chart_monte_carlo(monte, spots, 8,3.5, "")                 
         
 
      

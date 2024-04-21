@@ -20,15 +20,19 @@ import matplotlib.pyplot as plt
 from scipy.optimize import newton
 
 # Asset Payoff Lamda Functions 
-call    = lambda x: max(x-100, 0)
-put     = lambda x: max(100-x, 0)
-forward = lambda x: x - 100
 cap     = lambda x: 0 
 floor   = lambda x: 0
 swap    = lambda x: 0
 collar  = lambda x: 0
 bond    = lambda x: x
 
+
+def payoff(x, typ):
+    if typ == "bond":
+        return x
+    else:
+        return 0
+        
 def cf_floor(rates, strike, delta, notion, cpn):
     
     '''
@@ -188,7 +192,7 @@ def rateTree(r0, theta, sigma, delta, model):
     
     return tree
                                             
-def priceTree(rates, prob, cf, delta, payoff, notion):
+def priceTree(rates, prob, cf, delta, typ, notion):
     
     '''
     General Tree Pricing Function 
@@ -208,7 +212,7 @@ def priceTree(rates, prob, cf, delta, payoff, notion):
             
     tree = np.zeros([len(rates), len(rates)])
 
-    tree[:,len(tree)-1] = payoff(notion)
+    tree[:,len(tree)-1] = payoff(notion, typ)
         
     for col in reversed(range(0,len(tree)-1)):  
         
@@ -245,10 +249,10 @@ if __name__ == "__main__":
     x     = build(zeros, 0.009, 1/12)
     tr    = rateTree(x[0], x[2], 0.009, 1/12, 'HL')
     c     = cf_bond(tr, 5.00, 1/12, 1, 0.00)
-    p     = priceTree(tr, 1/2, c, 1/12, bond, 1)
+    p     = priceTree(tr, 1/2, c, 1/12, "bond", 1)
     print(zeros[0,zeros.shape[1]-1])
-    print(p[0,0])
-    print(p[0,0] - zeros[0,zeros.shape[1]-1])
+    print(p[0])
+    print(p[0] - zeros[0,zeros.shape[1]-1])
     
     pd.DataFrame(tr).to_clipboard()
     
