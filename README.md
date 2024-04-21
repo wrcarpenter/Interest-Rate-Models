@@ -14,6 +14,12 @@ This repository focuses on the implementation of two interest rate models in a b
 ## Construction 
 The tree should be calibrated to price zero coupon bond prices given the market. Volatility is typically based of of forward volatility implied by caplets or other rate options like swaptions. This project does not have access to that kind of pricing data.
 
+### Ho-Lee Model
+
+### Black-Derman-Toy Model
+
+### Calibrating for Theta $\theta$
+
 Construct tree interatively solving to calibrate a full rate tree. 
 
 ## Binomial Tree Pricing Method
