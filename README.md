@@ -1,5 +1,5 @@
 # Interest Rate Models
-Binomial trees.
+This project implements binomial trees to model interest rates, which can be calibrated to market data and used to price a variety of fixed income securities. 
 
 ## Objectives
 * Use market data to calibrate a binomail interest tree model (Ho-Lee or Black-Derman-Toy)
