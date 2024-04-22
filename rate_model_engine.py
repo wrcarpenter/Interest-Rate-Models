@@ -56,7 +56,10 @@ def cf_cap(rates, strike, delta, notion, cpn):
 def cf_bond(rates, strike, delta, notion, cpn):
     
     '''
-    Bond Cash flows
+    Bond Cashflows
+    
+    Strike input is not important.
+    
     '''
     cf  = np.zeros([len(rates), len(rates)])
 
@@ -73,7 +76,7 @@ def cf_swap(rates, strike, delta, notion, cpn):
     for col in range(0, len(cf)-1):
         for row in range(0, col+1):
             rate = rates[row,col]
-            cf[row, col] = strike/100 - rate     
+            cf[row, col] = delta*notion*(rate-strike/100)    
             
     return cf
 
@@ -109,7 +112,10 @@ def solver(theta, tree, zcb, i, sigma, delta):
             tree[row, i] = tree[row, i-1] + theta*delta + sigma*math.sqrt(delta)
         else:
             tree[row, i] = tree[row-1, i-1] + theta*delta - sigma*math.sqrt(delta)
+    
             
+    # now we need to handle BDT tree
+    
     # need pricing tree?    
     for col in reversed(range(0, i+1)):
         for row in range(0, col+1):
@@ -137,9 +143,8 @@ def calibrate(tree, zcb, i, sigma, delta):
     
     
     return [theta, tree]
-    
-        
-def build(zcb, sigma, delta):
+            
+def build(zcb, sigma, delta, model):
     
     # empty rates tree
     tree  = np.zeros([zcb.shape[1]+1, zcb.shape[1]+1])
@@ -149,7 +154,11 @@ def build(zcb, sigma, delta):
     # Initial Zero Coupon rate
     tree[0,0] = np.log(zcb[0,0])*-1/delta
     
-    r0        = tree[0,0]
+    # Add model consideration here too
+    if model == "BDT":
+        r0 = np.log(tree[0,0])
+    else:
+        r0 = tree[0,0]
     
     for i in range(1, len(theta)):
         
@@ -158,8 +167,11 @@ def build(zcb, sigma, delta):
         # update theta array
         theta[i] = solved[0]
         tree     = solved[1]
-        
-    return [r0, tree, theta]
+    
+    if model == "BDT":
+        return [r0, np.exp(tree), theta]
+    else:
+        return [r0, tree, theta]
     
 def rateTree(r0, theta, sigma, delta, model):
 
@@ -171,7 +183,13 @@ def rateTree(r0, theta, sigma, delta, model):
     '''
 
     tree = np.zeros([len(theta)+1, len(theta)+1])
-    tree[0,0] = r0
+    
+    # BDT model
+    if model == "BDT":
+        tree[0,0] = np.log(r0)
+    # Ho-Lee model
+    else:
+        tree[0,0] = r0
        
     for col in range(1, len(tree)-1):
         
@@ -182,7 +200,10 @@ def rateTree(r0, theta, sigma, delta, model):
         for row in range(1, col+1):
             tree[row, col] = tree[row-1, col] - 2*sigma*math.sqrt(delta)
     
-    return tree
+    if model == "BDT":
+        return np.exp(tree)
+    else:
+        return tree
                                             
 def priceTree(rates, prob, cf, delta, typ, notion):
     
@@ -230,18 +251,14 @@ if __name__ == "__main__":
     zcbs = zero_coupons.loc[zero_coupons['Date']=='3/8/2024']
     zcbs = zcbs.drop("Date", axis=1)
     
-    # zcbs = np.array(zcbs.iloc[:,0:4])  # these are my zero coupon bonds
-    
-    tre = rateTree(0.045, [0.07, 0.12, 0.15, 0.02, 0.02, 0.02], 0.001,1/12, "HL")
-    c   = cf_bond(tre, 5.00, 1/12, 1, 0.00)
-    p   = priceTree(tre, 1/2, c, 1/12, bond, 1)
-    
     # small example for calibration
     zeros = np.array(zcbs.iloc[:,0:60])
-    x     = build(zeros, 0.009, 1/12)
-    tr    = rateTree(x[0], x[2], 0.009, 1/12, 'HL')
+    x     = build(zeros, 0.011, 1/12)
+    tree    = rateTree(x[0], x[2], 0.011, 1/12, 'HL')
     c     = cf_bond(tr, 5.00, 1/12, 1, 0.00)
     p     = priceTree(tr, 1/2, c, 1/12, "bond", 1)
+    
+    
     print(zeros[0,zeros.shape[1]-1])
     print(p[0])
     print(p[0] - zeros[0,zeros.shape[1]-1])
