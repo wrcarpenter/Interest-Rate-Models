@@ -1,7 +1,8 @@
 # Interest Rate Models
 Fixed income bonds and derivatives are complicated financial instruments whose pricing is often conditional on the path of interest rates in the future. The assumption that current rates will remain 'static' is overly simplistic, especially when one needs to price a security with embedded options (ex: swaption). 
 
-This repository focuses on the implementation of two interest rate models in a binomial lattic framework, somewhat similar to valuation methods in the equity derivative market beyond Black-Scholes. The two models are: Ho-Lee and Black-Derman-Toy. The fixed income industry has become more complex since these were intially created but they have both been used in practice at some point to develop pricing models for banks and other market participants. 
+This repository focuses on the implementation of the acclaimed Ho-Lee interest rate model in a binomial lattic framework, which is somewhat similar to valuation methods in the equity derivative market. The fixed income industry has become more complex since this model was initiall created but it has been used in practice at some point to develop pricing models for banks and other market participants. 
+
 
 ## Table of Contents
 
@@ -11,14 +12,14 @@ This repository focuses on the implementation of two interest rate models in a b
 * Create Monte Carlo simluations from a given tree and compare pricing results to binomial pricing
 * Use Monte Carlo interest rate simulations to price path-dependent securities, like mortgages 
 
-## Construction 
+## Ho-Lee Rate Model Construction 
 The tree should be calibrated to price zero coupon bond prices given the market. Volatility is typically based of of forward volatility implied by caplets or other rate options like swaptions. This project does not have access to that kind of pricing data.
 
-### Ho-Lee Model
+## Model Dynamics
 
-### Black-Derman-Toy Model
+## Determining Interest Rate Volatility $\sigma$
 
-### Calibrating for Theta $\theta$
+## Calibrating for Theta $\theta$ to Price Zero Coupon Bonds
 
 Construct tree interatively solving to calibrate a full rate tree. 
 
