@@ -19,6 +19,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import newton
 
+
 def payoff(x, typ):
     if typ == "bond":
         return x
@@ -113,9 +114,6 @@ def solver(theta, tree, zcb, i, sigma, delta):
         else:
             tree[row, i] = tree[row-1, i-1] + theta*delta - sigma*math.sqrt(delta)
     
-            
-    # now we need to handle BDT tree
-    
     # need pricing tree?    
     for col in reversed(range(0, i+1)):
         for row in range(0, col+1):
@@ -144,7 +142,7 @@ def calibrate(tree, zcb, i, sigma, delta):
     
     return [theta, tree]
             
-def build(zcb, sigma, delta, model):
+def build(zcb, sigma, delta):
     
     # empty rates tree
     tree  = np.zeros([zcb.shape[1]+1, zcb.shape[1]+1])
@@ -153,12 +151,8 @@ def build(zcb, sigma, delta, model):
     
     # Initial Zero Coupon rate
     tree[0,0] = np.log(zcb[0,0])*-1/delta
-    
-    # Add model consideration here too
-    if model == "BDT":
-        r0 = np.log(tree[0,0])
-    else:
-        r0 = tree[0,0]
+
+    r0 = tree[0,0]
     
     for i in range(1, len(theta)):
         
@@ -168,12 +162,10 @@ def build(zcb, sigma, delta, model):
         theta[i] = solved[0]
         tree     = solved[1]
     
-    if model == "BDT":
-        return [r0, np.exp(tree), theta]
-    else:
-        return [r0, tree, theta]
+
+    return [r0, tree, theta]
     
-def rateTree(r0, theta, sigma, delta, model):
+def rateTree(r0, theta, sigma, delta):
 
     '''
     General Rate Model Tree Function
@@ -184,12 +176,7 @@ def rateTree(r0, theta, sigma, delta, model):
 
     tree = np.zeros([len(theta)+1, len(theta)+1])
     
-    # BDT model
-    if model == "BDT":
-        tree[0,0] = np.log(r0)
-    # Ho-Lee model
-    else:
-        tree[0,0] = r0
+    tree[0,0] = r0
        
     for col in range(1, len(tree)-1):
         
@@ -200,10 +187,8 @@ def rateTree(r0, theta, sigma, delta, model):
         for row in range(1, col+1):
             tree[row, col] = tree[row-1, col] - 2*sigma*math.sqrt(delta)
     
-    if model == "BDT":
-        return np.exp(tree)
-    else:
-        return tree
+
+    return tree
                                             
 def priceTree(rates, prob, cf, delta, typ, notion):
     
@@ -235,9 +220,9 @@ def priceTree(rates, prob, cf, delta, typ, notion):
             pu = pd = 1/2 
             tree[row, col] = np.exp(-1*rate*delta)* \
                              (pu*(tree[row, col+1]+cf[row,col+1]) + pd*(tree[row+1, col+1]+cf[row+1, col+1]))      
-
     
     return (tree[0,0], tree) 
+
 
 # Unit testing        
 if __name__ == "__main__":
@@ -246,24 +231,25 @@ if __name__ == "__main__":
     # small ho-lee tree
     # ho_lee = rateTree(0.0169, [0.021145, 0.013807], 0.015, 0.5, 'BDT')
     
-    zero_coupons = pd.read_csv('https://raw.githubusercontent.com/wrcarpenter/Interest-Rate-Models/main/Data/zcbs.csv')
-    
+    zero_coupons = pd.read_csv('https://raw.githubusercontent.com/wrcarpenter/Interest-Rate-Models/main/Data/zcbs.csv') 
     zcbs = zero_coupons.loc[zero_coupons['Date']=='3/8/2024']
     zcbs = zcbs.drop("Date", axis=1)
     
     # small example for calibration
     zeros = np.array(zcbs.iloc[:,0:60])
-    x     = build(zeros, 0.011, 1/12)
-    tree    = rateTree(x[0], x[2], 0.011, 1/12, 'HL')
-    c     = cf_bond(tr, 5.00, 1/12, 1, 0.00)
-    p     = priceTree(tr, 1/2, c, 1/12, "bond", 1)
+    x     = build(zeros, 0.011, 1/12) 
+    tree_hl    = rateTree(x[0], x[2], 0.011, 1/12)
     
     
-    print(zeros[0,zeros.shape[1]-1])
-    print(p[0])
-    print(p[0] - zeros[0,zeros.shape[1]-1])
+    # c     = cf_bond(tr, 5.00, 1/12, 1, 0.00)
+    # p     = priceTree(tr, 1/2, c, 1/12, "bond", 1)
     
-    pd.DataFrame(tr).to_clipboard()
+    
+    # print(zeros[0,zeros.shape[1]-1])
+    # print(p[0])
+    # print(p[0] - zeros[0,zeros.shape[1]-1])
+    
+    # pd.DataFrame(tr).to_clipboard()
     
 
    
