@@ -20,12 +20,21 @@ The drift term, $\theta(t)dt$, is time-varying which allows the model to be cali
 ### Model Dynamics
 In order to use the Ho-Lee model to build a tree, the dynamics must be discretized so the short rate in the tree follows:
 
+Move up the tree:
 ```math
-r^{*}_{t+\Delta t} = 
+r^{*}_{t+\Delta t} = r^{*}_t + \theta (t) \Delta t + \sigma \sqrt{\Delta t}
 ```
+Move down the tree:
+```math
+r^{*}_{t+\Delta t} = r^{*}_t + \theta (t) \Delta t - \sigma \sqrt{\Delta t}
+```
+This will produce a tree model that can then be used for pricing via backwards discounting (martingale condition) or with Monte Carlo simulation where paths are sampled from the rates in the tree. 
 
 ### Determining Interest Rate Volatility $\sigma$
 The Ho-Lee model assumes a constant volatility which means it cannot match a given term structure of volatility in the market. This is certainly one downside of the model because options typically have different volatilities at different maturities. Other models (such as the Black-Derman-Toy model) were subsequently created to handle a term structure of volatility. 
+
+### Zero Coupon Bond Prices
+Zero Coupon Bond (ZCB) prices are an input used for calibrating the model to market data. ZCBs for Treasury securities can be bootstrapped from market data. See [this project](https://github.com/wrcarpenter/Z-Spread) that goes into detail on how to implement a bootstapping method in python and subsequently use ZCBs to determine the yield-spreads of various bonds.  
 
 ### Calibrating for Theta $\theta$ to Price Zero Coupon Bonds
 
