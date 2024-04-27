@@ -162,7 +162,13 @@ The following is how paths on simulated tree could appear and how they compare t
 
 ## Cap Pricing 
 
-An interest rate cap is the following. The cap cash flows are:
+An interest rate cap is a derivative that pays the cap-holder the difference between a reference rate ($rR) and a strike rate ($\bar{r}$), if and only if, the reference rate is higher than the strike rate. In markets, caps offer insurance against increasing interest rate for many borrowers, especially those who have sold floating rate debt. Selling a floating rate coupon and buying a cap effectively sets a ceiling on how much interest a borrower might have to pay on a bond. If rates increase substantially, the borrower can use the proceeds from the cap agreement to make higher payments on their floating rate obligation. A caps cash flows can be written as:
+
+```math
+CF(t) = \Delta t * N * max(r(t-1)-\bar{r}, 0)
+
+```
+Implementing this in code below:
 
 ```Python
 def cf_cap(rates, strike, delta, notion, cpn):
@@ -186,7 +192,12 @@ This is sensible considering a cap with a very low strike (ex: around 1%) should
 
 ## Swap Pricing 
 
-An interest rate swap is the following. The swap cash flows are:
+An interest rate swap is an agreement between two parties where one pays a fixed rate over a number of periods and the other pays a floating rate, connected to some reference rate in the market (ex: SOFR or previously LIBOR). At a given time, the actual cash exchanged between the two parties is:
+
+```math
+CF(t) = \Delta t * N * (r(t-1) - \bar{t})
+```
+In the case above, that would be the cash flows for a 'payer swap' where a fixed rate is being paid, and a floating rate is being received. The code below implements a payer swap cash flow:
 
 ```Python
 def cf_swap(rates, strike, delta, notion, cpn):
@@ -200,9 +211,13 @@ def cf_swap(rates, strike, delta, notion, cpn):
             
     return cf
 ```
+Using the model, here is one example of how a payer swap price varies based on a strike rate (holding volatility, cap notional amount, etc constant). 
+
 ![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/swap_pricing_table.png)
 
 ![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/swap_pricing_chart.png)
+
+In the real world, swap rates (fixed leg) are quoted so that the cost of a swap at inception is actually zero. In some instances above, the swap price becomes negative because the strike is so high that the "payer leg" should actually be paid for entering the swap, rather than pay a price for it.  
 
 ## Bond Pricing
 
