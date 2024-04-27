@@ -42,11 +42,60 @@ Zero Coupon Bond (ZCB) prices are an input used for calibrating the model to mar
 
 Construct tree interatively solving to calibrate a full rate tree. 
 
+```Python
+def build(zcb, sigma, delta):
+    
+    # empty rates tree
+    tree  = np.zeros([zcb.shape[1], zcb.shape[1]])
+    # empty theta tree
+    theta = np.zeros([zcb.shape[1]]) 
+    
+    # Initial Zero Coupon rate
+    tree[0,0] = np.log(zcb[0,0])*-1/delta
+
+    r0 = tree[0,0]
+    
+    for i in range(1, len(theta)):
+        
+        solved   = calibrate(tree, zcb[0,i], i, sigma, delta)
+        
+        # update theta array
+        theta[i] = solved[0]
+        tree     = solved[1]
+    
+    return [r0, tree, theta]
+```
+
+![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/zcb_calibration_24_period_tree.png)
+
 ### Binomial Tree Pricing Method
 Price bonds.
+```Python
+def priceTree(rates, prob, cf, delta, typ, notion):
+        
+    # include extra column for payoff         
+    tree = np.zeros([len(rates)+1, len(rates)+1])
+    
+    # assign security payoff
+    tree[:,len(tree)-1] = payoff(notion, typ)
+    
+    # interate through the price tree    
+    for col in reversed(range(0,len(tree)-1)):  
+        
+        for row in range(0, col+1):
+            
+            rate = rates[row,col]
+            pu = pd = 1/2 
+            tree[row, col] = np.exp(-1*rate*delta)* \
+                             (pu*(tree[row, col+1]+cf[row,col+1]) + pd*(tree[row+1, col+1]+cf[row+1, col+1]))      
+    
+    return (tree[0,0], tree) 
+```
+
 
 ### Monte Carlo Pricing Method
-Generate a monte carlo simulation. 
+Generate a monte carlo simulation.
+
 
 ## Cap Pricing 
 
