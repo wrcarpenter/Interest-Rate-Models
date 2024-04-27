@@ -180,6 +180,8 @@ Using the model, here is one example of how a cap price varies based on a strike
 
 ![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/cap_pricing_table.png)
 
+![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/cap_pricing_chart.png)
+
 This is sensible considering a cap with a very low strike (ex: around 1%) should be "expensive" in the current rate environment, where the current short rate is about 5% and longer dated Treasury bonds are all 4% yield or higher. The same is also true for the extremely low cost of a high-strike cap, considering that the market is not pricing in future rates as high as 9-12%. 
 
 ## Swap Pricing 
