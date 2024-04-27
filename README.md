@@ -69,7 +69,7 @@ The calibration process is arguably the most computationally intensive process o
 ![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/zcb_calibration_24_period_tree.png)
 
 ### Binomial Tree Pricing Method
-Price bonds.
+There are a few important conditions that must be met for tree pricing via the Ho-Lee model to be possible: risk neautral dymanics, martingale assumption, etc. The Ho-Lee trees created satisfy these conditions and allows backward discounting in the tree to provide valid prices for bonds and derivatives. The below algorithm is what is implemented in code that is essentially taking a weighted average of cash flows at each node in the tree and discounting them back to the present.  
 
 ```Python
 def priceTree(rates, prob, cf, delta, typ, notion):
@@ -92,6 +92,7 @@ def priceTree(rates, prob, cf, delta, typ, notion):
     
     return (tree[0,0], tree) 
 ```
+This algorithm enables one to price securities like bonds, swaps, caps, floors, etc and can be expanded quickly to handle more complicated derivatives like swaptions or callable bonds with coupon payments. 
 
 ### Monte Carlo Pricing Method
 Generate a monte carlo simulation.
