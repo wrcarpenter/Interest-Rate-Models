@@ -3,8 +3,6 @@ Fixed income bonds and derivatives are complicated financial instruments whose p
 
 This repository focuses on the implementation of the acclaimed [Ho-Lee interest rate model](https://en.wikipedia.org/wiki/Ho%E2%80%93Lee_model) in a binomial lattic framework, which is somewhat similar to valuation methods in the equity derivative market. The fixed income industry has become more complex since this model was initiall created but it has been used in practice at some point to develop pricing models for banks and other market participants.
 
-## Table of Contents
-
 ## Objectives
 * Use market pricing data to calibrate a binomial interest tree model (Ho-Lee)
 * Price various interest rate securities and derivatives with a tree model: caps, floors, swaps, bonds, etc.
@@ -12,11 +10,22 @@ This repository focuses on the implementation of the acclaimed [Ho-Lee interest 
 * Use Monte Carlo interest rate simulations to price path-dependent securities, like mortgages 
 
 ## Ho-Lee Rate Model Construction 
-The tree should be calibrated to price zero coupon bond prices given the market. Volatility is typically based of of forward volatility implied by caplets or other rate options like swaptions. This project does not have access to that kind of pricing data.
+The Ho-Lee model was introduced in 1986 by Thomas Ho and Sang Bin Lee. Generally, it defines a short rate to follow a stochastic process:
+
+```math
+dr^* = \theta(t)dt + \sigma dZ^*
+```
+The drift term, $\theta(t)dt$, is time-varying which allows the model to be calibrated to match a given term structure of interest rates (by varying theta each period). Thus, the model will produce rates that can price a zero coupon bond in any given month to match market prices. One potential downside of this model is that it allows interest rates to become negative, which many practictioners sought to avoid because it seemed unlikely that would ever occur in real markets. However, recent negative interest rate environmetns in Japan and Europe over the past decade could make this model more plausible moving forward. 
 
 ### Model Dynamics
+In order to use the Ho-Lee model to build a tree, the dynamics must be discretized so the short rate in the tree follows:
+
+```math
+r^{*}_{t+\Delta t} = 
+```
 
 ### Determining Interest Rate Volatility $\sigma$
+The Ho-Lee model assumes a constant volatility which means it cannot match a given term structure of volatility in the market. This is certainly one downside of the model because options typically have different volatilities at different maturities. Other models (such as the Black-Derman-Toy model) were subsequently created to handle a term structure of volatility. 
 
 ### Calibrating for Theta $\theta$ to Price Zero Coupon Bonds
 
