@@ -30,7 +30,27 @@ Move down the tree:
 ```math
 r^{*}_{t+\Delta t} = r^{*}_t + \theta (t) \Delta t - \sigma \sqrt{\Delta t}
 ```
-This will produce a tree model that can then be used for pricing via backwards discounting (martingale condition) or with Monte Carlo simulation where paths are sampled from the rates in the tree. 
+This will produce a tree model that can then be used for pricing via backwards discounting (martingale condition) or with Monte Carlo simulation where paths are sampled from the rates in the tree. The following code is what implements construction of a tree once all relevant variables are provided:
+
+```Python
+def rateTree(r0, theta, sigma, delta):
+
+    tree = np.zeros([len(theta), len(theta)])
+    
+    tree[0,0] = r0
+       
+    for col in range(1, len(tree)):
+        
+        tree[0, col] = tree[0, col-1] + theta[col]*delta+sigma*math.sqrt(delta)
+   
+    for col in range(1, len(tree)):
+        for row in range(1, col+1):
+            tree[row, col] = tree[row-1, col] - 2*sigma*math.sqrt(delta)
+
+    return tree
+```
+
+
 
 ### Determining Interest Rate Volatility $\sigma$
 The Ho-Lee model assumes a constant volatility which means it cannot match a given term structure of volatility in the market. This is certainly one downside of the model because options typically have different volatilities at different maturities. Other models (such as the Black-Derman-Toy model) were subsequently created to handle a term structure of volatility. 
