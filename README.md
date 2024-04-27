@@ -200,6 +200,9 @@ def cf_swap(rates, strike, delta, notion, cpn):
             
     return cf
 ```
+![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/swap_pricing_table.png)
+
+![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/swap_pricing_chart.png)
 
 ## Bond Pricing
 
