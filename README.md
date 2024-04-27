@@ -7,7 +7,7 @@ This repository focuses on the implementation of the acclaimed Ho-Lee interest r
 ## Table of Contents
 
 ## Objectives
-* Use market data to calibrate a binomail interest tree model (Ho-Lee or Black-Derman-Toy)
+* Use market pricing data to calibrate a binomial interest tree model (Ho-Lee)
 * Price various interest rate securities and derivatives with a tree model: caps, floors, swaps, bonds, etc.
 * Create Monte Carlo simluations from a given tree and compare pricing results to binomial pricing
 * Use Monte Carlo interest rate simulations to price path-dependent securities, like mortgages 
