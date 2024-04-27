@@ -99,7 +99,53 @@ Generate a monte carlo simulation.
 
 ## Cap Pricing 
 
+An interest rate cap is the following. The cap cash flows are:
+
+```Python
+def cf_cap(rates, strike, delta, notion, cpn):
+
+    cf  = np.zeros([len(rates)+1, len(rates)+1])
+
+    for col in range(0, len(cf)-1):
+        for row in range(0, col+1):
+            rate = rates[row,col]
+            cf[row, col] = delta*notion*max(rate-strike/100, 0)
+
+    return cf
+```
+
 ## Swap Pricing 
 
+An interest rate swap is the following. The swap cash flows are:
+
+```Python
+def cf_swap(rates, strike, delta, notion, cpn):
+    
+    f  = np.zeros([len(rates)+1, len(rates)+1])
+
+    for col in range(0, len(cf)-1):
+        for row in range(0, col+1):
+            rate = rates[row,col]
+            cf[row, col] = delta*notion*(rate-strike/100)    
+            
+    return cf
+```
+
 ## Bond Pricing
+
+A bond is the following. The bond cash flows are. We assume here that the bond is not callable and does not have embedded borrower options.
+
+```Python
+def cf_bond(rates, strike, delta, notion, cpn):
+    
+    cf  = np.zeros([len(rates)+1, len(rates)+1])
+
+    for col in range(0, len(cf)-1):
+        for row in range(0, col+1):
+            cf[row, col] = delta*notion*cpn/100  
+    
+    return cf
+```
+
+
 
