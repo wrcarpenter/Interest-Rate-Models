@@ -156,6 +156,9 @@ def tree_monte_carlo(tree, paths):
     
     return monte
 ```
+The following is how paths on simulated tree could appear and how they compare to provide ZCB pricing data used to calibrate the tree:
+
+![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/monte_carlo_with_zcbs.png)
 
 ## Cap Pricing 
 
