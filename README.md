@@ -115,8 +115,47 @@ def priceTree(rates, prob, cf, delta, typ, notion):
 This algorithm enables one to price securities like bonds, swaps, caps, floors, etc and can be expanded quickly to handle more complicated derivatives like swaptions or callable bonds with coupon payments. 
 
 ### Monte Carlo Pricing Method
-Generate a monte carlo simulation.
+Monte Carlo simulations are a popular methodology for pricing fixed income securities, especially when payoffs can be "path dependent." One common example of this can be found in mortgages, a multi-billion dollar market traded by all of Wall Street's largest banks. Assumptions about borrower prepayment often depend on interest rates they have seen in the past, thus the entire path of rates is important to simluation for future cash flows. 
 
+With a Ho-Lee model, simulation can be introduced by randomly moving up or down the branches assuming an "up" or "down" probability of 50%. The following code performs this simulation for an arbitrary number of paths when given a rate tree:
+
+```Python
+# Monte carlo simluation 
+def tree_monte_carlo(tree, paths):    
+
+    monte = np.zeros([len(tree)-1, paths])
+
+    monte[0,:] = tree[0,0] # assign initial interest rate 
+    
+    for col in range(0,monte.shape[1]):
+        
+        r = 0
+        c = 0
+        p = 0
+        
+        for row in range(1, monte.shape[0]):
+        
+            p = random.rand()
+            
+            if p > 0.5:
+                # move through rate tree
+                monte[row, col] = tree[r, c+1]
+                # update position on rate tree
+                r = r 
+                c = c+1
+            else:
+                # move through rate tree
+                monte[row, col] = tree[r+1, c+1]
+                # update position on rate tree
+                r = r + 1
+                c = c + 1
+
+    periods = np.arange(1, len(tree), 1)
+    monte   = pd.DataFrame(monte)
+    monte.insert(0, 'Period', periods)
+    
+    return monte
+```
 
 ## Cap Pricing 
 
