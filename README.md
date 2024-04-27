@@ -1,7 +1,7 @@
 # Interest Rate Models
 Fixed income bonds and derivatives are complicated financial instruments whose pricing is often conditional on the path of interest rates in the future. The assumption that current rates will remain 'static' is overly simplistic, especially when one needs to price a security with embedded options (ex: swaption). 
 
-This repository focuses on the implementation of the acclaimed [Ho-Lee](https://en.wikipedia.org/wiki/Ho%E2%80%93Lee_model) interest rate model in a binomial lattic framework, which is somewhat similar to valuation methods in the equity derivative market. The fixed income industry has become more complex since this model was initiall created but it has been used in practice at some point to develop pricing models for banks and other market participants.
+This repository focuses on the implementation of the acclaimed [Ho-Lee interest rate model](https://en.wikipedia.org/wiki/Ho%E2%80%93Lee_model) in a binomial lattic framework, which is somewhat similar to valuation methods in the equity derivative market. The fixed income industry has become more complex since this model was initiall created but it has been used in practice at some point to develop pricing models for banks and other market participants.
 
 ## Table of Contents
 
