@@ -14,18 +14,23 @@ This repository focuses on the implementation of the acclaimed [Ho-Lee interest 
 ## Ho-Lee Rate Model Construction 
 The tree should be calibrated to price zero coupon bond prices given the market. Volatility is typically based of of forward volatility implied by caplets or other rate options like swaptions. This project does not have access to that kind of pricing data.
 
-## Model Dynamics
+### Model Dynamics
 
-## Determining Interest Rate Volatility $\sigma$
+### Determining Interest Rate Volatility $\sigma$
 
-## Calibrating for Theta $\theta$ to Price Zero Coupon Bonds
+### Calibrating for Theta $\theta$ to Price Zero Coupon Bonds
 
 Construct tree interatively solving to calibrate a full rate tree. 
 
-## Binomial Tree Pricing Method
+### Binomial Tree Pricing Method
 Price bonds.
 
-## Monte Carlo Pricing Method
+### Monte Carlo Pricing Method
 Generate a monte carlo simulation. 
 
+## Cap Pricing 
+
+## Swap Pricing 
+
+## Bond Pricing
 
