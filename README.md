@@ -6,7 +6,7 @@ This repository focuses on the implementation of the acclaimed [Ho-Lee interest 
 ![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/ho_lee_monte_carlo_500_simulations.png)
 
 ## Objectives
-* Use market pricing data to calibrate a binomial interest tree model (Ho-Lee)
+* Use market pricing data to calibrate a Ho-Lee binomial interest tree model
 * Price various interest rate securities and derivatives with a tree model: caps, floors, swaps, bonds, etc.
 * Create Monte Carlo simluations from a given tree and compare pricing results to binomial pricing
 * Use Monte Carlo interest rate simulations to price path-dependent securities, like mortgages 
@@ -40,8 +40,7 @@ Zero Coupon Bond (ZCB) prices are an input used for calibrating the model to mar
 
 ### Calibrating for Theta $\theta$ to Price Zero Coupon Bonds
 
-Construct tree interatively solving to calibrate a full rate tree. 
-
+The Ho-Lee model has a time-varying $\theta$ that gives it the flexibilty to be calibrated to match a given term structure of interest rates. To accomplish this, market data of ZCB prices must be provided and then the tree is iteratively constructed, choosing a $\theta_i$ at each point to fit all given zero coupon bond prices. The following code is part of the functions that executes this calibration process:
 ```Python
 def build(zcb, sigma, delta):
     
@@ -65,11 +64,13 @@ def build(zcb, sigma, delta):
     
     return [r0, tree, theta]
 ```
+The calibration process is arguably the most computationally intensive process of the tree creation process but it produces a $\theta$ array and a fully constructed tree that can immediately be used and subsequently reused for security pricing. Below is example of a calibrated model where prices of ZCBs generated from the tree are compared to the ZCB market data. The fit is extremely precise:
 
 ![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/zcb_calibration_24_period_tree.png)
 
 ### Binomial Tree Pricing Method
 Price bonds.
+
 ```Python
 def priceTree(rates, prob, cf, delta, typ, notion):
         
@@ -91,7 +92,6 @@ def priceTree(rates, prob, cf, delta, typ, notion):
     
     return (tree[0,0], tree) 
 ```
-
 
 ### Monte Carlo Pricing Method
 Generate a monte carlo simulation.
