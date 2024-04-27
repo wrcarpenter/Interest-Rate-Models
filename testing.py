@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 """
-Interest Rate Model
+Interest Rate Model - Calibrating Theta
 """
 import sys
 import os
@@ -19,8 +18,8 @@ zcbs = zero_coupons.loc[zero_coupons['Date']=='3/8/2024']
 zcbs = zcbs.drop("Date", axis=1)
 
 #%%
-# Build a large tree
-zeros     = np.array(zcbs.iloc[:,0:120])
+# Build a tree
+zeros     = np.array(zcbs.iloc[:,0:24])
 calibrate = model.build(zeros, 0.007, 1/12)
 tree      = model.rateTree(calibrate[0], calibrate[2], 0.007, 1/12)
 
@@ -39,11 +38,9 @@ for i in range(0,len(arr)):
     # Model zcb price    
     arr[i, 2] = result[0]
 
+
 prices = pd.DataFrame(arr, columns=["Period", "ZCB Price", "Model Price"])
-
-
-chrt = chart_zcb_calibration(prices, 10, 5, "ZCB Calibration")
-
+chrt   = chart_zcb_calibration(prices, 10, 5, "Zero Coupon Bond (ZCB) Calibration - 24 Period Tree")
 
 #%%
 # Charting example       
@@ -54,8 +51,8 @@ def chart_zcb_calibration(arr, w, l, title):
     y2 = np.array(arr['Model Price'])
     
     fig,ax = plt.subplots(figsize=(w,l))
-    ax.set_xticks(np.arange(1, len(arr)+10, 15))
-    ax.set_yticks(np.arange(0,1,0.05))
+    ax.set_xticks(np.arange(1, len(arr)+15, 5))
+    ax.set_yticks(np.arange(0,1,0.01))
     
     
     ax.set_title(title, fontsize="large")
@@ -63,8 +60,8 @@ def chart_zcb_calibration(arr, w, l, title):
     ax.set_xlabel('Months', fontsize="large")
     
    
-    plt.scatter(x1, y1, color='blue', marker='s', label="Market Price")
-    plt.plot(x1, y2, color='green',label='Model Price')
+    plt.scatter(x1, y1, color='blue', marker='x', label="Market ZCB Price")
+    plt.plot(x1, y2, color='green',label='Model ZCB Price')
     
     plt.legend(loc='upper right', fontsize='large')
 

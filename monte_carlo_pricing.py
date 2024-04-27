@@ -12,21 +12,14 @@ from numpy import random
 import matplotlib.pyplot as plt
 from scipy.optimize import newton
 # Custom module
-import rate_model_engine as model
+import model_ho_lee as model
 
 # Monte carlo simluation 
 def tree_monte_carlo(tree, paths):    
-    # return a dataframe
-    # same rows as the rate tree, columns is the number of simulations
+
     monte = np.zeros([len(tree)-1, paths])
 
-    monte[0,:] = tree[0,0] # assign initial interest rate then simulate
-    
-    # initialize 
-
-    # the first 
-    # return monte
-    # the array is 48 cells 
+    monte[0,:] = tree[0,0] # assign initial interest rate 
     
     for col in range(0,monte.shape[1]):
         
@@ -51,7 +44,6 @@ def tree_monte_carlo(tree, paths):
                 r = r + 1
                 c = c + 1
 
-    
     periods = np.arange(1, len(tree), 1)
     monte   = pd.DataFrame(monte)
     monte.insert(0, 'Period', periods)
@@ -64,7 +56,7 @@ def chart_monte_carlo(monte, spots, w, l, title):
     x1 = np.array(monte['Period'])
     s1 = np.array(spots[0,:]/100)
     fig,ax = plt.subplots(figsize=(w,l))
-    ax.set_xticks(np.arange(1, len(monte)+10, 20))
+    ax.set_xticks(np.arange(1, len(monte)+5, 20))
     ax.set_yticks(np.arange(round(np.min(monte.iloc[:,1:].values)-0.50,2), round(np.max(monte.iloc[:,1:].values)+.50,2), 0.02))
     ax.set_title(title, fontsize="large")
     
@@ -76,12 +68,37 @@ def chart_monte_carlo(monte, spots, w, l, title):
         
         y = np.array(monte.iloc[:, col])
         if col==1:
-            plt.plot(x1, y, color="grey", label="Simulations")
-        plt.plot(x1, y, color="grey")    
+            plt.plot(x1, y, linewidth=0.9, label="Simulations")
+        plt.plot(x1, y, linewidth=0.9)    
+    
+    # plt.plot(x1, s1, color="blue", label="Spot Rates")
+    # plt.legend(loc='upper right', fontsize='large')
+
+# Charting example       
+def chart_mc(monte, spots, w, l, title):
+    
+    x1 = np.array(monte['Period'])
+    s1 = np.array(spots[0,:]/100)
+    s1 = s1[:len(s1)-1]
+    fig,ax = plt.subplots(figsize=(w,l))
+    ax.set_xticks(np.arange(1, len(monte)+5, 20))
+    ax.set_yticks(np.arange(round(np.min(monte.iloc[:,1:].values)-0.50,2), round(np.max(monte.iloc[:,1:].values)+.50,2), 0.02))
+    ax.set_title(title, fontsize="large")
+    
+    ax.set_ylabel('Interest Rate (%)', fontsize="large")
+    ax.set_xlabel('Months', fontsize="large")
+    
+    for col in range(1, monte.shape[1]):
+        
+        y = np.array(monte.iloc[:, col])
+        if col==1:
+            plt.plot(x1, y, linewidth=0.9, label="Simulations", color="grey")
+        plt.plot(x1, y, linewidth=0.9, color="grey")    
     
     plt.plot(x1, s1, color="blue", label="Spot Rates")
     plt.legend(loc='upper right', fontsize='large')
-            
+
+           
 if __name__ == "__main__":
 
     # Read in zero coupon data 
@@ -95,15 +112,15 @@ if __name__ == "__main__":
     zeros  = np.array(zcbs.iloc[:,0:120])
     spots  = np.array(spots.iloc[:,0:120])
     cal    = model.build(zeros, 0.012, 1/12)
-    tree   = model.rateTree(cal[0], cal[2], 0.012, 1/12, 'HL')
+    tree   = model.rateTree(cal[0], cal[2], 0.012, 1/12)
     cf     = model.cf_bond(tree, 5.00, 1/12, 1, 0.00)
     out    = model.priceTree(tree, 1/2, cf, 1/12, "bond", 1)
     px     = out[0]
     ptree  = out[1]
 
-    monte  = tree_monte_carlo(tree, 250)
-    chart_monte_carlo(monte, spots, 8,3.5, "Ho-Lee Binomial Tree Monte Carlo: 250 Simulations")
-    chart_monte_carlo(monte, spots, 8,3.5, "")                 
-        
+    monte  = tree_monte_carlo(tree, 500)
+    # chart_monte_carlo(monte, spots, 12,5.0, "Ho-Lee Binomial Tree Monte Carlo: 1,000 Simulations")
+    chart_mc(monte, spots, 12, 5.0, "Ho-Lee Binomial Tree Monte Carlo: 500 Simulations")
+    
 
      
