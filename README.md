@@ -215,7 +215,7 @@ This is sensible considering a cap with a very low strike (ex: around 1%) should
 An interest rate swap is an agreement between two parties where one pays a fixed rate over a number of periods and the other pays a floating rate, connected to some reference rate in the market (ex: SOFR or previously LIBOR). At a given time, the actual cash exchanged between the two parties is:
 
 ```math
-CF(t) = \Delta t * N * (r(t-1) - \bar{t})
+CF(t) = \Delta t * N * (r(t-1) - \bar{r})
 ```
 In the case above, that would be the cash flows for a 'payer swap' where a fixed rate is being paid, and a floating rate is being received. The code below implements a payer swap cash flow:
 
