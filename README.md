@@ -5,6 +5,26 @@ This repository focuses on the implementation of the acclaimed [Ho-Lee interest 
 
 ![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/ho_lee_monte_carlo_500_simulations.png)
 
+## Table of Contents 
+
+[Introduction](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#interest-rate-models)
+
+[Objectives](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#objectives)
+
+[Ho-Lee Rate Model Construction](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#ho-lee-rate-model-construction)
+* [Model Dynamics](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#model-dynamics)
+* [Determining Interest Rate Volatility](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#determining-interest-rate-volatility-sigma)
+* [Zero coupon Bond Prices](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#zero-coupon-bond-prices)
+* [Calibrating for Theta to Price Zero Coupon Bonds](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#calibrating-for-theta-theta-to-price-zero-coupon-bonds)
+* [Binomial Tree Pricing Method](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#binomial-tree-pricing-method)
+* [Monte Carlo Pricing Method](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#monte-carlo-pricing-method)
+
+[Cap Pricing](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#cap-pricing)
+
+[Swap Pricing](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#swap-pricing)
+
+[Coupon Bond Pricing](https://github.com/wrcarpenter/Interest-Rate-Models?tab=readme-ov-file#coupon-bond-pricing)
+
 ## Objectives
 * Use market pricing data to calibrate a Ho-Lee binomial interest tree model
 * Price various interest rate securities and derivatives with a tree model: caps, floors, swaps, bonds, etc.
