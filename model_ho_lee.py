@@ -63,7 +63,7 @@ def cf_bond(rates, strike, delta, notion, cpn):
 
 def cf_swap(rates, strike, delta, notion, cpn):
     
-    f  = np.zeros([len(rates)+1, len(rates)+1])
+    cf  = np.zeros([len(rates)+1, len(rates)+1])
 
     for col in range(0, len(cf)-1):
         for row in range(0, col+1):
