@@ -226,8 +226,7 @@ A coupon bond is a fixed income security that pays a certain coupon overtime to 
 ```math
 CF(t) = \Delta t * N * r(t-1)
 ```
-
-
+The code below implements an array of coupon payments for the bond cash flow:
 
 ```Python
 def cf_bond(rates, strike, delta, notion, cpn):
@@ -240,6 +239,14 @@ def cf_bond(rates, strike, delta, notion, cpn):
     
     return cf
 ```
+Using the model, here is one example of how a bond price varies based on a coupon (holding volatility, cap notional amount, etc constant).
+
+![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/bond_pricing_table.png)
+
+![Image](https://github.com/wrcarpenter/Interest-Rate-Models/blob/main/Images/bond_pricing_chart.png)
+
+It makes sense that the bond price would increase with a higher coupon rate; the investor is paying more for all the intermediate cash flows they will receive from the borrower. 
+
 
 
 
