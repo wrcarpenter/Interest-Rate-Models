@@ -219,9 +219,15 @@ Using the model, here is one example of how a payer swap price varies based on a
 
 In the real world, swap rates (fixed leg) are quoted so that the cost of a swap at inception is actually zero. In some instances above, the swap price becomes negative because the strike is so high that the "payer leg" should actually be paid for entering the swap, rather than pay a price for it.  
 
-## Bond Pricing
+## Coupon Bond Pricing
 
-A bond is the following. The bond cash flows are. We assume here that the bond is not callable and does not have embedded borrower options.
+A coupon bond is a fixed income security that pays a certain coupon overtime to the bondholder, which is assumed to be constant for pricing below. In reality, bonds can have floating rate coupons indexed to SOFR, LIBOR, etc. A bonds cashflows can be written as:
+
+```math
+CF(t) = \Delta t * N * r(t-1)
+```
+
+
 
 ```Python
 def cf_bond(rates, strike, delta, notion, cpn):
